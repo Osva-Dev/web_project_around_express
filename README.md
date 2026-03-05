@@ -1,6 +1,6 @@
-## Around Express API
+# Around Express API
 
-# Descripción del Proyecto
+## Descripción del Proyecto
 
 **Around Express API** es un servidor backend desarrollado con Node.js y Express que simula una API REST para el proyecto "Alrededor de los EE. UU.".
 
