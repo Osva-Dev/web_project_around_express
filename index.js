@@ -24,6 +24,10 @@ app.get("/users/:id", (req, res) => {
   res.json(user);
 });
 
+app.use((req, res) => {
+  res.status(404).json({ message: "Recurso solicitado no encontrado" });
+});
+
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
 });
