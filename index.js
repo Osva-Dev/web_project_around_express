@@ -9,6 +9,7 @@ const app = express();
 app.use(express.json());
 
 app.use("/users", usersRouter);
+app.use("/cards", cardsRouter);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Recurso solicitado no encontrado" });
