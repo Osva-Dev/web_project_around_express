@@ -1,28 +1,14 @@
 const express = require("express");
 const { PORT = 3000 } = process.env;
 
-const users = require("./data/users.json");
-const cards = require("./data/cards.json");
+const usersRouter = require("./routes/users");
+const cardsRouter = require("./routes/cards");
 
 const app = express();
 
-app.get("/users", (req, res) => {
-  res.json(users);
-});
+app.use(express.json());
 
-app.get("/cards", (req, res) => {
-  res.json(cards);
-});
-
-app.get("/users/:id", (req, res) => {
-  const user = users.find((u) => u._id === req.params.id);
-
-  if (!user) {
-    return res.status(404).json({ message: "ID de usuario no encontrado" });
-  }
-
-  res.json(user);
-});
+app.use("/users", usersRouter);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Recurso solicitado no encontrado" });
