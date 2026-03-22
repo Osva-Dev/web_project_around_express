@@ -16,12 +16,15 @@ app.get("/", (req, res) => {
   res.send("API funcionando");
 });
 
+app.use((req, res, next) => {
+  req.user = {
+    _id: "69bf559a8ebde5821accc5e5",
+  };
+  next();
+});
+
 app.use("/users", usersRouter);
 app.use("/cards", cardsRouter);
-
-app.use((req, res) => {
-  res.status(404).json({ message: "Recurso solicitado no encontrado" });
-});
 
 mongoose
   .connect(process.env.MONGO_URI)
