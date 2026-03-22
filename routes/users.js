@@ -1,36 +1,32 @@
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
+const mongoose = require("mongoose");
 
-const router = express.Router();
+// Regex para validar URL
+const urlRegex =
+  /^(https?:\/\/)(www\.)?[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/[a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=]*)?#?$/; //Recordatorio, nos puede servir en proximas actividades
 
-const usersPath = path.join(__dirname, '../data/users.json');
-
-router.get('/', (req, res) => {
-  fs.readFile(usersPath, 'utf8', (err, data) => {
-    if (err) {
-      return res.status(500).json({ message: 'Error interno del servidor' });
-    }
-
-    return res.json(JSON.parse(data));
-  });
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    minlength: 2,
+    maxlength: 30,
+  },
+  about: {
+    type: String,
+    required: true,
+    minlength: 2,
+    maxlength: 30,
+  },
+  avatar: {
+    type: String,
+    required: true,
+    validate: {
+      validator: function (v) {
+        return urlRegex.test(v);
+      },
+      message: "URL de avatar inválida",
+    },
+  },
 });
 
-router.get('/:id', (req, res) => {
-  fs.readFile(usersPath, 'utf8', (err, data) => {
-    if (err) {
-      return res.status(500).json({ message: 'Error interno del servidor' });
-    }
-
-    const users = JSON.parse(data);
-    const user = users.find((u) => u._id === req.params.id);
-
-    if (!user) {
-      return res.status(404).json({ message: 'ID de usuario no encontrado' });
-    }
-
-    return res.json(user);
-  });
-});
-
-module.exports = router;
+module.exports = mongoose.model("user", userSchema);
