@@ -1,19 +1,40 @@
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
+const mongoose = require("mongoose");
 
-const router = express.Router();
+// Regex para validar URL
+const urlRegex =
+  /^(https?:\/\/)(www\.)?[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/[a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=]*)?#?$/; //Recordatorio, nos puede servir en proximas actividades
 
-const cardsPath = path.join(__dirname, '../data/cards.json');
-
-router.get('/', (req, res) => {
-  fs.readFile(cardsPath, 'utf8', (err, data) => {
-    if (err) {
-      return res.status(500).json({ message: 'Error interno del servidor' });
-    }
-
-    return res.json(JSON.parse(data));
-  });
+const cardSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    minlength: 2,
+    maxlength: 30,
+  },
+  link: {
+    type: String,
+    required: true,
+    validate: {
+      validator: function (v) {
+        return urlRegex.test(v);
+      },
+      message: "URL de imagen inválida",
+    },
+  },
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user",
+    required: true,
+  },
+  likes: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "user",
+    default: [],
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-module.exports = router;
+module.exports = mongoose.model("card", cardSchema);
