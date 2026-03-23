@@ -11,14 +11,22 @@ module.exports.getUsers = async (req, res) => {
 
 module.exports.getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.userId);
-
-    if (!user) {
-      return res.status(404).send({ message: "Usuario no encontrado" });
-    }
+    const user = await User.findById(req.params.userId).orFail(() => {
+      const error = new Error("Usuario no encontrado");
+      error.statusCode = 404;
+      throw error;
+    });
 
     res.send(user);
   } catch (err) {
+    if (err.name === "CastError") {
+      return res.status(400).send({ message: "ID inválido" });
+    }
+
+    if (err.statusCode === 404) {
+      return res.status(404).send({ message: err.message });
+    }
+
     res.status(500).send({ message: "Error interno del servidor" });
   }
 };
@@ -31,6 +39,10 @@ module.exports.createUser = async (req, res) => {
 
     res.status(201).send(user);
   } catch (err) {
-    res.status(500).send({ message: "Error al crear usuario" });
+    if (err.name === "ValidationError") {
+      return res.status(400).send({ message: "Datos inválidos" });
+    }
+
+    res.status(500).send({ message: "Error interno del servidor" });
   }
 };

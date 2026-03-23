@@ -1,6 +1,5 @@
 const Card = require("../models/card");
 
-// GET /cards
 module.exports.getCards = async (req, res) => {
   try {
     const cards = await Card.find().populate("owner");
@@ -10,7 +9,6 @@ module.exports.getCards = async (req, res) => {
   }
 };
 
-// POST /cards
 module.exports.createCard = async (req, res) => {
   try {
     const { name, link } = req.body;
@@ -27,23 +25,28 @@ module.exports.createCard = async (req, res) => {
       return res.status(400).send({ message: "Datos inválidos" });
     }
 
-    res.status(500).send({ message: "Error al crear la carta" });
+    res.status(500).send({ message: "Error interno del servidor" });
   }
 };
 
-// DELETE /cards/:cardId
 module.exports.deleteCard = async (req, res) => {
   try {
-    const card = await Card.findByIdAndDelete(req.params.cardId);
+    const card = await Card.findById(req.params.cardId).orFail(() => {
+      const error = new Error("Carta no encontrada");
+      error.statusCode = 404;
+      throw error;
+    });
 
-    if (!card) {
-      return res.status(404).send({ message: "Carta no encontrada" });
-    }
+    await card.deleteOne();
 
     res.send({ message: "Carta eliminada" });
   } catch (err) {
     if (err.name === "CastError") {
       return res.status(400).send({ message: "ID inválido" });
+    }
+
+    if (err.statusCode === 404) {
+      return res.status(404).send({ message: err.message });
     }
 
     res.status(500).send({ message: "Error interno del servidor" });
