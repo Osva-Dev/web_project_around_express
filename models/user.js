@@ -1,8 +1,7 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 // Regex para validar URL
-const urlRegex =
-  /^(https?:\/\/)(www\.)?[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/[a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=]*)?#?$/; //Recordatorio, nos puede servir en proximas actividades
+const urlRegex = /^(https?:\/\/)(www\.)?[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/[a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=]*)?#?$/; // Recordatorio, nos puede servir en proximas actividades
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -21,12 +20,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator: function (v) {
+      validator(v) {
         return urlRegex.test(v);
       },
-      message: "URL de avatar inválida",
+      message: 'URL de avatar inválida',
     },
   },
 });
 
-module.exports = mongoose.model("user", userSchema);
+module.exports = mongoose.model('user', userSchema);
