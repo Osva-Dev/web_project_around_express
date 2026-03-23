@@ -78,3 +78,31 @@ module.exports.updateUser = async (req, res) => {
     res.status(500).send({ message: "Error interno del servidor" });
   }
 };
+
+module.exports.updateAvatar = async (req, res) => {
+  try {
+    const { avatar } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { avatar },
+      { new: true, runValidators: true },
+    ).orFail(() => {
+      const error = new Error("Usuario no encontrado");
+      error.statusCode = 404;
+      throw error;
+    });
+
+    res.send(user);
+  } catch (err) {
+    if (err.name === "ValidationError") {
+      return res.status(400).send({ message: "Datos inválidos" });
+    }
+
+    if (err.statusCode === 404) {
+      return res.status(404).send({ message: err.message });
+    }
+
+    res.status(500).send({ message: "Error interno del servidor" });
+  }
+};
